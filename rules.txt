@@ -1,0 +1,12 @@
+Welcome to the Forbidden Word Bot. Here are the following rules:
+
+1. 1000 words are randomly extracted from this website:
+http://svnweb.freebsd.org/csrg/share/dict/words?view=co&content-type=text/plain
+
+The words are a secret. For every word you say that is in the 1000 extracted words, you will be placed in time-out for one minute in which you cannot talk, read messages, send pictures, or join voice chat. 
+
+2. There are 50 "ultra-forbidden" words, where if you say them, they will be placed on uber time-out for 10 minutes. 
+
+3. There are 20 "blessed" words, where if you say them you will be granted total immunity from the Forbidden Word bot. However, the "blessed" words will be removed from the list. 
+
+4. Type ~reshuffle to generate a new batch of words.
