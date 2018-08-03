@@ -5,8 +5,10 @@ http://svnweb.freebsd.org/csrg/share/dict/words?view=co&content-type=text/plain
 
 The words are a secret. For every word you say that is in the 1000 extracted words, you will be placed in time-out for one minute in which you cannot talk, read messages, send pictures, or join voice chat. 
 
-2. There are 50 "ultra-forbidden" words, where if you say them, they will be placed on uber time-out for 10 minutes. 
+2. There are 50 "cursed" words, where if you say them, they will be placed on uber time-out for 10 minutes. 
 
 3. There are 20 "blessed" words, where if you say them you will be granted total immunity from the Forbidden Word bot. However, the "blessed" words will be removed from the list. 
 
-4. Type ~reshuffle to generate a new batch of words.
+4. The filter will apply even if you edit your messages, so no cheating.
+
+5. Type ~reshuffle to generate a new batch of words.

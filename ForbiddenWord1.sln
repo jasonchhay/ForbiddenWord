@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "LandMineBot", "LandMineBot.pyproj", "{A476B5CC-50EA-48E7-A348-C544603D05F0}"
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "ForbiddenWord1", "ForbiddenWord1.pyproj", "{AB8D87D6-A8DE-47F9-9386-54EEF81237AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,8 +11,8 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A476B5CC-50EA-48E7-A348-C544603D05F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A476B5CC-50EA-48E7-A348-C544603D05F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB8D87D6-A8DE-47F9-9386-54EEF81237AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB8D87D6-A8DE-47F9-9386-54EEF81237AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

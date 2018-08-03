@@ -1,58 +1,43 @@
 # https://github.com/Rapptz/discord.py/blob/async/examples/reply.py
 import discord
-from discord import Permissions
+from discord import PermissionOverwrite
 import asyncio
 import copy
 from generate_dictionary import generate_dictionary
-TOKEN = 'NDcxODM3MTMzMzA5NDc2ODc1.Djqo_Q.nNu8BNi1MkVVlYf565qALkUj3s4'
+TOKEN = ''
 
 client = discord.Client()
 
+global wordBank
+global cursedBank
+global blessedBank
 
-dictionary = generate_dictionary()
-wordBank = dictionary[:1000]
-cursedBank = dictionary[1000:1050]
-blessedBank = dictionary[1050:]
-print(wordBank)
-print(cursedBank)
-print(blessedBank)
+wordBank = {}
+cursedBank = {}
+blessedBank = {}
 
-role = None
+global blessed_role
+global cursed_role
+global timeout_role
 
 blessed_role = None
 cursed_role = None
 timeout_role = None
-@client.event
-async def on_message(message):
-    # we do not want the bot to reply to itself
-    if message.author == client.user:
-        return
 
-    message_space = message.content.split(" ")
+def reshuffle(server):
+    dictionary = generate_dictionary()
 
-    if message.content == "~rules":
-        msg = open("rules.txt", 'r').read()
-        await client.send_message(message.channel, msg)
+    wordBank[server] = dictionary[:1000]
 
-    if message.content == "~reshuffle":
-        global dictionary
-        dictionary = generate_dictionary()
+    cursedBank[server] = dictionary[1000:1050]
 
-        global wordBank
-        wordBank = dictionary[:1000]
+    blessedBank[server] = dictionary[1050:]
 
-        global cursedBank
-        cursedBank = dictionary[1000:1050]
+async def check_message(message, message_space):
 
-        global blessedBank
-        blessedBank = dictionary[1050:]
-        print(wordBank)
-        print(cursedBank)
-        print(blessedBank)
+    server = message.server
 
-        msg = "The word bank has been reshuffled. Good luck ;)"
-        await client.send_message(message.channel, msg)
-    print(message.content)
+    role = None
 
     forbidden = 0
     timeout = 0
@@ -66,70 +51,120 @@ async def on_message(message):
 
     roles = []
 
-    for word in message_space:
-        if word == "~rules" or word == "~reshuffle":
-            return
-        word = "".join(list(filter(lambda c: c.isalpha(), word)))
+    if blessed_role not in message.author.roles:
+        #Check each word in the message for blessed, cursed, or forbidden words
+        for word in message_space:
+            word = "".join(list(filter(lambda c: c.isalpha(), word)))
 
-        if word.lower() in blessedBank:
-            forbidden = 1
-            timeout = 0
+            if word.lower() in blessedBank[server]:
+                forbidden = 1
+                timeout = 0
 
-            blessedBank.remove(word.lower())
-            wordBank.remove(word.lower())
-            await client.add_roles(message.author, blessed_role)
-            msg = "Congratulations <@{}>, you have said a blessed word. From here on out, you'll be immune to any forbidden or cursed words.".format(message.author.id)
+                blessedBank[server].remove(word.lower())
+                await client.add_roles(message.author, discord.utils.get(server.roles, name='Blessed'))
+                msg = "Congratulations <@{}>, you have said a blessed word: **\"{}\"**. From here on out, you'll be immune to any forbidden or cursed words.".format(message.author.id, word.lower())
+                await client.send_message(message.channel, msg)
+                return
+
+            elif word.lower() in cursedBank[server]:
+                forbidden = 2
+                timeout += 600
+                cursedCounter += 1
+                roles.append(discord.utils.get(server.roles, name='Cursed'))
+
+            if blessed_role not in message.author.roles and word.lower() in wordBank[server]:
+                forbidden = 3
+                timeout += 60
+                forbiddenCounter += 1
+                roles.append(discord.utils.get(server.roles, name='Time-Out'))
+
+        #Provide appropriate punishment if a forbidden word is said.
+        if forbidden > 1:
+            currentRoles = copy.copy(message.author.roles)
+            if timeout / 60 > 1:
+                plural = 'minutes'
+            msg = "<@{}> said ".format(message.author.id)
+            if cursedCounter > 0:
+                if cursedCounter > 1:
+                    cursedPlural = "words"
+                msg += "{} cursed {}".format(cursedCounter, cursedPlural)
+
+            if cursedCounter > 0 and forbiddenCounter > 0:
+                msg += " and "
+
+            if forbiddenCounter > 0:
+                if forbiddenCounter > 1:
+                    forbiddenPlural = "words"
+                msg += "{} forbidden {}".format(forbiddenCounter, forbiddenPlural)
+
+            msg += '. They will be on timeout for {} {}.'.format(int(timeout / 60), plural)
             await client.send_message(message.channel, msg)
-            return
 
-        elif word.lower() in cursedBank:
-            forbidden = 2
-            timeout += 600
-            cursedCounter += 1
-            roles.append(cursed_role)
+            for r in currentRoles:
+                await client.remove_roles(message.author, r)
+            for role in roles:
+                print(role)
+                await client.add_roles(message.author, role)
 
-        if blessed_role not in message.author.roles and word.lower() in wordBank:
-            forbidden = 3
-            timeout += 60
-            forbiddenCounter += 1
-            roles.append(timeout_role)
+            await asyncio.sleep(timeout)
 
+            for role in roles:
+                await client.remove_roles(message.author, role)
+            for r in currentRoles:
+                await client.add_roles(message.author, r)
 
-    if forbidden > 1:
-        currentRoles = copy.copy(message.author.roles)
-        print(currentRoles)
-        if timeout / 60 > 1:
-            plural = 'minutes'
+@client.event
+async def on_message(message):
+    # we do not want the bot to reply to itself
+    if message.author == client.user:
+        return
 
-        msg = "<@{}> You have said ".format(message.author.id)
-        if cursedCounter > 0:
-            if cursedCounter > 1:
-                cursedPlural = "words"
-            msg += "{} cursed {}".format(cursedCounter, cursedPlural)
-
-        if cursedCounter > 0 and forbiddenCounter > 0:
-            msg += " and "
-
-        if forbiddenCounter > 0:
-            if forbiddenCounter > 1:
-                forbiddenPlural = "words"
-            msg += "{} forbidden {}".format(forbiddenCounter, forbiddenPlural)
-
-        msg += '. You will be on timeout for {} {}.'.format(int(timeout / 60),plural)
+    if message.content == "~rules":
+        msg = open("rules.txt", 'r').read()
         await client.send_message(message.channel, msg)
+        return
 
-        for r in currentRoles:
-            await client.remove_roles(message.author, r)
-        for role in roles:
-            await client.add_roles(message.author, role)
+    if message.content == "~reshuffle":
+        reshuffle(message.server)
+        msg = "The word bank has been reshuffled. Good luck ;)"
+        await client.send_message(message.channel, msg)
+        return
 
-        await asyncio.sleep(timeout)
+    print(message.content)
 
-        for role in roles:
-            await client.remove_roles(message.author, role)
-        for r in currentRoles:
-            await client.add_roles(message.author, r)
+    await check_message(message, message.content.split(" "))
 
+@client.event
+async def on_message_edit(before, after):
+    await check_message(before, before.content.split(" "))
+
+@client.event
+async def on_server_join(server):
+    print("Joined server:",server)
+    if 'Blessed' not in [r.name for r in server.roles]:
+        await client.create_role(server, name="Blessed", color=discord.Color(0xfcfbb8))
+
+    if 'Cursed' not in [r.name for r in server.roles]:
+        await client.create_role(server, name="Cursed", color=discord.Color(0x440d0d))
+
+    if 'Time-Out' not in [r.name for r in server.roles]:
+        await client.create_role(server, name='Time-Out', color=discord.Color(0x826987))
+
+    cursed_role = discord.utils.get(server.roles, name='Cursed')
+    timeout_role = discord.utils.get(server.roles, name='Time-Out')
+    mute_permissions = PermissionOverwrite(read_messages = True, read_message_history=True, send_messages = False, connect=False, speak=False)
+
+    for channel in server.channels:
+        await client.edit_channel_permissions(channel, cursed_role, mute_permissions)
+        await client.edit_channel_permissions(channel, timeout_role, mute_permissions)
+    dictionary = generate_dictionary()
+    wordBank[server] = dictionary[:1000]
+    cursedBank[server] = dictionary[1000:1050]
+    blessedBank[server] = dictionary[1050:]
+
+    print(wordBank[server])
+    print(cursedBank[server])
+    print(blessedBank[server])
 
 @client.event
 async def on_ready():
@@ -139,23 +174,7 @@ async def on_ready():
     print('------')
 
     for server in client.servers:
-        if 'Blessed' not in [r.name for r in server.roles]:
-            await client.create_role(server, name="Blessed", color=discord.Color(0xfcfbb8))
-        global blessed_role
-        blessed_role = discord.utils.get(server.roles, name='Blessed')
-        print(blessed_role)
-
-        if 'Cursed' not in [r.name for r in server.roles]:
-            await client.create_role(server, name="Cursed", color=discord.Color(0x440d0d))
-        global cursed_role
-        cursed_role = discord.utils.get(server.roles, name='Cursed')
-        print(cursed_role)
-
-        if 'Time-Out' not in [r.name for r in server.roles]:
-            await client.create_role(server, name='Time-Out', color=discord.Color(0x826987))
-        global timeout_role
-        timeout_role = discord.utils.get(server.roles, name='Time-Out')
-        print(timeout_role)
+        await on_server_join(server)
 
 
 client.run(TOKEN)

@@ -10,7 +10,7 @@ def generate_dictionary():
     randInts = []
     for i in range(1070):
         while True:
-            r = random.randint(0,len(words))
+            r = random.randint(0,len(words)-1)
             if r not in randInts:
                 break
 

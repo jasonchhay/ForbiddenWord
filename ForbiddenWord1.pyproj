@@ -3,9 +3,9 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{a476b5cc-50ea-48e7-a348-c544603d05f0}</ProjectGuid>
+    <ProjectGuid>{ab8d87d6-a8de-47f9-9386-54eef81237ac}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>generate_dictionary.py</StartupFile>
+    <StartupFile>__init__.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -19,6 +19,7 @@
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="rules.txt" />
     <Content Include="wordBank.txt" />
   </ItemGroup>
   <ItemGroup>
